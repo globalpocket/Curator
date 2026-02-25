@@ -77,7 +77,7 @@ function getJSTDateTime() {
 // テキストをAIで処理する関数（リトライ機能付き）
 async function toAiPrompt(prompt, retryCount = 0) {
   const maxRetries = 3;
-  const baseWaitTime = 30000;
+  const baseWaitTime = 60000;
 
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
