@@ -1,0 +1,6 @@
+{
+  "transformIgnorePatterns": [
+    "node_modules/(?!node-fetch)"
+  ],
+  "testEnvironment": "node"
+}

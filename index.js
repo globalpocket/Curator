@@ -8,13 +8,13 @@ require('dotenv').config();
 const axios = require('axios');
 const FormData = require('form-data');
 // const { exec } = require('child_process'); // 未使用のためコメントアウト
-const fetch = require('node-fetch');
+const { fetch } = require('node-fetch');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // 環境変数の設定
-const WP_API = process.env.WP_URL;
-const WP_AUTH = Buffer.from(process.env.WP_AUTH).toString('base64');
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const WP_API = process.env.WP_URL || 'https://example.com/wp-json/wp/v2';
+const WP_AUTH = process.env.WP_AUTH ? Buffer.from(process.env.WP_AUTH).toString('base64') : 'dGVzdDp0ZXN0';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'test-key';
 
 // Google Geminiの初期化
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
