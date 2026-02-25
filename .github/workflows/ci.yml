@@ -5,6 +5,8 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '0 */4 * * *' # 4時間おきに実行
   workflow_dispatch:
     inputs:
       post_id:
@@ -17,7 +19,10 @@ permissions:
   actions: read
 
 jobs:
+  # --- プッシュやプルリク時にのみ実行するジョブ ---
   test:
+    # 実行条件: イベントが 'schedule'（タイマー）ではない時
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -29,9 +34,12 @@ jobs:
     - run: npm test
     - run: npm run lint
 
+  # --- タイマー実行時にのみ実行するジョブ ---
   news-processing:
+    # 実行条件: イベントが 'schedule'（タイマー）である時
+    # ※ github.ref == 'refs/heads/main' の条件も含める場合は && で繋げます
+    if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
