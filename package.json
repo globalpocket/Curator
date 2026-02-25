@@ -34,6 +34,5 @@
     "form-data": "^4.0.0",
     "node-fetch": "^2.7.0",
     "dotenv": "^16.4.0",
-    "amazon-product-api": "^1.0.0"
   }
 }
