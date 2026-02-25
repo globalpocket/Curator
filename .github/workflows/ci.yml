@@ -1,6 +1,20 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      post_id:
+        description: '投稿ID'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
 
 jobs:
   test:
@@ -14,3 +28,50 @@ jobs:
     - run: npm ci
     - run: npm test
     - run: npm run lint
+
+  news-processing:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    - run: npm ci
+    - name: Import News
+      env:
+        WP_URL: ${{ secrets.WP_URL }}
+        WP_AUTH: ${{ secrets.WP_AUTH }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: npm run import-news
+    - name: Process News
+      env:
+        WP_URL: ${{ secrets.WP_URL }}
+        WP_AUTH: ${{ secrets.WP_AUTH }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: npm run process-news
+    - name: Fetch News (Import + Process)
+      env:
+        WP_URL: ${{ secrets.WP_URL }}
+        WP_AUTH: ${{ secrets.WP_AUTH }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: npm run fetch-news
+
+  manual-process-post:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    - run: npm ci
+    - name: Process Single Post
+      env:
+        WP_URL: ${{ secrets.WP_URL }}
+        WP_AUTH: ${{ secrets.WP_AUTH }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        POST_ID: ${{ github.event.inputs.post_id }}
+      run: npm run process-post $POST_ID

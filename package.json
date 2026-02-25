@@ -5,6 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "import-news": "node index.js import-news",
+    "process-news": "node index.js process-news",
+    "fetch-news": "node index.js fetch-news",
+    "process-post": "node index.js process-post",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint .",
@@ -23,5 +27,11 @@
     "eslint": "^8.57.0",
     "jest": "^29.7.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "axios": "^1.7.0",
+    "form-data": "^4.0.0",
+    "node-fetch": "^3.3.2",
+    "dotenv": "^16.4.0"
+  }
 }
