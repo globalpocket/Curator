@@ -537,18 +537,25 @@ async function processNews() {
 
     console.log('--- 投稿データを取得中... ---');
 
-    while (true) {
+    let hasMorePosts = true;
+    while (hasMorePosts) {
       const response = await wpReq(
         `/posts?status=pending&_embed&context=edit&acf_format=standard&per_page=${perPage}&page=${page}`,
       );
 
       const posts = response;
-      if (!Array.isArray(posts) || posts.length === 0) break;
+      if (!Array.isArray(posts) || posts.length === 0) {
+        hasMorePosts = false;
+        break;
+      }
 
       allPosts.push(...posts);
       console.log(`--- ページ${page}: ${posts.length}件取得（累計: ${allPosts.length}件） ---`);
 
-      if (posts.length < perPage) break;
+      if (posts.length < perPage) {
+        hasMorePosts = false;
+        break;
+      }
       page++;
     }
 
