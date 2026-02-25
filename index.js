@@ -16,17 +16,22 @@ const WP_API = process.env.WP_URL;
 const WP_AUTH = process.env.WP_AUTH ? Buffer.from(process.env.WP_AUTH).toString('base64') : null;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-// 環境変数チェック
-if (!WP_API || !WP_AUTH || !GEMINI_API_KEY) {
-  console.error('❌ 必須な環境変数が設定されていません:');
-  console.error('   WP_URL:', WP_API ? '設定済み' : '未設定');
-  console.error('   WP_AUTH:', WP_AUTH ? '設定済み' : '未設定');
-  console.error('   GEMINI_API_KEY:', GEMINI_API_KEY ? '設定済み' : '未設定');
-  process.exit(1);
+// 環境変数チェック（テスト時はスキップ）
+if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'test') {
+  if (!WP_API || !WP_AUTH || !GEMINI_API_KEY) {
+    console.error('❌ 必須な環境変数が設定されていません:');
+    console.error('   WP_URL:', WP_API ? '設定済み' : '未設定');
+    console.error('   WP_AUTH:', WP_AUTH ? '設定済み' : '未設定');
+    console.error('   GEMINI_API_KEY:', GEMINI_API_KEY ? '設定済み' : '未設定');
+    process.exit(1);
+  }
 }
 
-// Google Geminiの初期化
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+// Google Geminiの初期化（テスト時はスキップ）
+let genAI;
+if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'test') {
+  genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+}
 // const aiModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' }); // 未使用のためコメントアウト
 
 // 共通リクエスト関数
@@ -51,6 +56,13 @@ async function wpReq(path, method = 'GET', body = null, options = {}) {
     headers,
     body,
   });
+  
+  // レスポンスがJSONでない場合のエラーハンドリング
+  const contentType = res.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    throw new Error(`Invalid response type: ${contentType}. Status: ${res.status}`);
+  }
+  
   return res.json();
 }
 
