@@ -1,0 +1,27 @@
+{
+  "name": "github-actions-demo",
+  "version": "1.0.0",
+  "description": "GitHub Actionsでタスクを実行するデモプロジェクト",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "build": "echo 'ビルド処理を実行中...' && mkdir -p dist && cp index.js dist/",
+    "deploy": "echo 'デプロイ処理を実行中...'"
+  },
+  "keywords": [
+    "github-actions",
+    "ci-cd",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0"
+  },
+  "dependencies": {}
+}

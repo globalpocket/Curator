@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Node.js ${{ matrix.node-version }} のセットアップ
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: 依存関係のインストール
+      run: npm ci
+    
+    - name: テストの実行
+      run: npm test
+    
+    - name: リントの実行
+      run: npm run lint
+    
+    - name: ビルドの実行
+      run: npm run build
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Node.js のセットアップ
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: 依存関係のインストール
+      run: npm ci
+    
+    - name: ビルドの実行
+      run: npm run build
+    
+    - name: デプロイ
+      run: |
+        echo "デプロイ処理をここに追加"
+        # 例: npm run deploy
