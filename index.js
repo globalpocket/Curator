@@ -8,13 +8,22 @@ require('dotenv').config();
 const axios = require('axios');
 const FormData = require('form-data');
 // const { exec } = require('child_process'); // 未使用のためコメントアウト
-const { fetch } = require('node-fetch');
+const fetch = require('node-fetch').default;
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // 環境変数の設定
-const WP_API = process.env.WP_URL || 'https://example.com/wp-json/wp/v2';
-const WP_AUTH = process.env.WP_AUTH ? Buffer.from(process.env.WP_AUTH).toString('base64') : 'dGVzdDp0ZXN0';
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'test-key';
+const WP_API = process.env.WP_URL;
+const WP_AUTH = process.env.WP_AUTH ? Buffer.from(process.env.WP_AUTH).toString('base64') : null;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+// 環境変数チェック
+if (!WP_API || !WP_AUTH || !GEMINI_API_KEY) {
+  console.error('❌ 必須な環境変数が設定されていません:');
+  console.error('   WP_URL:', WP_API ? '設定済み' : '未設定');
+  console.error('   WP_AUTH:', WP_AUTH ? '設定済み' : '未設定');
+  console.error('   GEMINI_API_KEY:', GEMINI_API_KEY ? '設定済み' : '未設定');
+  process.exit(1);
+}
 
 // Google Geminiの初期化
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
@@ -513,7 +522,7 @@ async function importNews() {
 
     for (const importId of importIds) {
       const importSuccess = await handleImport(
-        `${WP_API}/wp-load.php?import_key=r_9pwmOfJ&import_id=${importId}`,
+        `${WP_API.replace('/wp-json/wp/v2', '')}/wp-load.php?import_key=r_9pwmOfJ&import_id=${importId}`,
       );
 
       if (!importSuccess) {
