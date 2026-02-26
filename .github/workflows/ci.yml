@@ -1,7 +1,7 @@
 name: CI
 
 run-name: |
-  ${{ github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *' && '📥 10分おきニュースインポート' ||
+  ${{ github.event_name == 'schedule' && github.event.schedule == '*/10 * * * *' && '📥 5分おきニュースインポート' ||
      github.event_name == 'workflow_dispatch' && format('🔧 手動実行: 投稿ID {0}', github.event.inputs.post_id) ||
      github.event_name == 'pull_request' && format('🔍 PRテスト: {0} → {1}', github.head_ref, github.base_ref) ||
      github.event_name == 'push' && format('🚀 プッシュテスト: {0}', github.ref_name) ||
@@ -44,9 +44,9 @@ jobs:
     - run: npm test
     - run: npm run lint
 
-  # --- 10分おきにニュースインポートを実行するジョブ ---
+  # --- 5分おきにニュースインポートを実行するジョブ ---
   importing:
-    # 実行条件: 10分おきのスケジュール実行時
+    # 実行条件: 5分おきのスケジュール実行時
     if: github.event_name == 'schedule' 
     runs-on: ubuntu-latest
     steps:
