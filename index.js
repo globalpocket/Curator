@@ -552,48 +552,21 @@ async function importNews() {
 async function processNews() {
   try {
     // ページネーションで全投稿を取得
-    let allPosts = [];
     let page = 1;
     const perPage = 10;
 
     console.log('--- 投稿データを取得中... ---');
 
-    let hasMorePosts = true;
-    while (hasMorePosts) {
-      const response = await wpReq(
-        `${WP_API}/wp-json/wp/v2/posts?status=pending&_embed&context=edit&acf_format=standard&per_page=${perPage}&page=${page}&orderby=rand`,
-      );
+    const response = await wpReq(
+      `${WP_API}/wp-json/wp/v2/posts?status=pending&_embed&context=edit&acf_format=standard&per_page=${perPage}&page=${page}&orderby=rand`,
+    );
 
-      const posts = response;
-      if (!Array.isArray(posts) || posts.length === 0) {
-        hasMorePosts = false;
-        break;
-      }
-
-      allPosts.push(...posts);
-      console.log(`--- ページ${page}: ${posts.length}件取得（累計: ${allPosts.length}件） ---`);
-
-      if (posts.length < perPage) {
-        hasMorePosts = false;
-        break;
-      }
-      page++;
-    }
-
-    const posts = allPosts;
-    console.log(`--- 全投稿取得完了: ${posts.length}件 ---`);
-
-    // 投稿をランダムにシャッフル
-    const shuffledPosts = posts.sort(() => Math.random() - 0.5);
-    console.log('--- 投稿をランダムにシャッフルしました ---');
-
-    for (const post of shuffledPosts) {
+    for (const post of response) {
       await doProcessPost(post);
     }
   } catch (error) {
     console.error('タスク実行エラー:', error);
   }
-
   console.log('✅ すべての処理が完了しました');
 }
 
