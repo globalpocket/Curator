@@ -77,7 +77,7 @@ function getJSTDateTime() {
 // テキストをAIで処理する関数（リトライ機能付き）
 async function toAiPrompt(prompt, retryCount = 0) {
   const maxRetries = 3;
-  const baseWaitTime = 60000;
+  const baseWaitTime = 45000;
 
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
@@ -88,7 +88,7 @@ async function toAiPrompt(prompt, retryCount = 0) {
     console.log('--- AIの回答を受信しました ---');
 
     // レート制限回避のため待機
-    console.log('Waiting 30 seconds to avoid API limits...');
+    console.log(`Waiting ${baseWaitTime / 1000} seconds to avoid API limits...`);
     await new Promise((resolve) => setTimeout(resolve, baseWaitTime));
 
     return text;
@@ -554,14 +554,14 @@ async function processNews() {
     // ページネーションで全投稿を取得
     let allPosts = [];
     let page = 1;
-    const perPage = 100;
+    const perPage = 3;
 
     console.log('--- 投稿データを取得中... ---');
 
     let hasMorePosts = true;
     while (hasMorePosts) {
       const response = await wpReq(
-        `${WP_API}/wp-json/wp/v2/posts?status=pending&_embed&context=edit&acf_format=standard&per_page=${perPage}&page=${page}`,
+        `${WP_API}/wp-json/wp/v2/posts?status=pending&_embed&context=edit&acf_format=standard&per_page=${perPage}&page=${page}&orderby=rand`,
       );
 
       const posts = response;
