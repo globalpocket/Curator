@@ -1,8 +1,7 @@
 name: CI
 
 run-name: |
-  ${{ github.event_name == 'schedule' && github.event.schedule == '0 */4 * * *' && '📰 4時間おきニュース処理' ||
-     github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *' && '📥 5分おきニュースインポート' ||
+  ${{ github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *' && '📥 5分おきニュースインポート' ||
      github.event_name == 'workflow_dispatch' && format('🔧 手動実行: 投稿ID {0}', github.event.inputs.post_id) ||
      github.event_name == 'pull_request' && format('🔍 PRテスト: {0} → {1}', github.head_ref, github.base_ref) ||
      github.event_name == 'push' && format('🚀 プッシュテスト: {0}', github.ref_name) ||
@@ -21,9 +20,8 @@ on:
         description: '投稿ID'
         required: true
         type: string
-  # 4時間おきに実行
+  # 5分おきに実行
   schedule:
-    - cron: '0 */4 * * *'  # 4時間おき（00:00, 04:00, 08:00, 12:00, 16:00, 20:00）
     - cron: '*/5 * * * *'   # 5分おき
 
 permissions:
@@ -46,29 +44,10 @@ jobs:
     - run: npm test
     - run: npm run lint
 
-  # --- 4時間おきにニュース処理を実行するジョブ ---
-  news-processing:
-    # 実行条件: 4時間おきのスケジュール実行時
-    if: github.event_name == 'schedule' && github.event.schedule == '0 */4 * * *'
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-    - run: npm ci
-    - name: Process News Only
-      env:
-        WP_URL: ${{ secrets.WP_URL }}
-        WP_AUTH: ${{ secrets.WP_AUTH }}
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      run: npm run process-news
-
   # --- 5分おきにニュースインポートを実行するジョブ ---
   importing:
     # 実行条件: 5分おきのスケジュール実行時
-    if: github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *'
+    if: github.event_name == 'schedule' 
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
