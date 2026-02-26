@@ -61,4 +61,4 @@ jobs:
         WP_URL: ${{ secrets.WP_URL }}
         WP_AUTH: ${{ secrets.WP_AUTH }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      run: npm run import-news
+      run: npm run fetch-news
