@@ -554,7 +554,7 @@ async function processNews() {
     // ページネーションで全投稿を取得
     let allPosts = [];
     let page = 1;
-    const perPage = 3;
+    const perPage = 10;
 
     console.log('--- 投稿データを取得中... ---');
 
