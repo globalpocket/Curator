@@ -1,18 +1,22 @@
 name: CI
 
 on:
+  # プッシュ時とプルリクエスト時に実行
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  schedule:
-    - cron: '0 */4 * * *' # 4時間おきに実行
+  # 手動実行
   workflow_dispatch:
     inputs:
       post_id:
         description: '投稿ID'
         required: true
         type: string
+  # 4時間おきに実行
+  schedule:
+    - cron: '0 */4 * * *'  # 4時間おき（00:00, 04:00, 08:00, 12:00, 16:00, 20:00）
+    - cron: '0 */12 * * *' # 12時間おき（00:00, 12:00）
 
 permissions:
   contents: read
@@ -34,11 +38,10 @@ jobs:
     - run: npm test
     - run: npm run lint
 
-  # --- タイマー実行時にのみ実行するジョブ ---
+  # --- 4時間おきにニュース処理を実行するジョブ ---
   news-processing:
-    # 実行条件: イベントが 'schedule'（タイマー）である時
-    # ※ github.ref == 'refs/heads/main' の条件も含める場合は && で繋げます
-    if: github.event_name == 'schedule'
+    # 実行条件: 4時間おきのスケジュール実行時
+    if: github.event_name == 'schedule' && github.event.schedule == '0 */4 * * *'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -47,9 +50,28 @@ jobs:
         node-version: '20.x'
         cache: 'npm'
     - run: npm ci
-    - name: Fetch News (Import + Process)
+    - name: Process News Only
       env:
         WP_URL: ${{ secrets.WP_URL }}
         WP_AUTH: ${{ secrets.WP_AUTH }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      run: npm run fetch-news
+      run: npm run process-news
+
+  # --- 12時間おきにニュースインポートを実行するジョブ ---
+  importing:
+    # 実行条件: 12時間おきのスケジュール実行時
+    if: github.event_name == 'schedule' && github.event.schedule == '0 */12 * * *'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    - run: npm ci
+    - name: Import News Only
+      env:
+        WP_URL: ${{ secrets.WP_URL }}
+        WP_AUTH: ${{ secrets.WP_AUTH }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: npm run import-news
