@@ -22,7 +22,7 @@ on:
         type: string
   # 5分おきに実行
   schedule:
-    - cron: '*/5 * * * *'   # 5分おき
+    - cron: '*/10 * * * *'   # 5分おき
 
 permissions:
   contents: read
