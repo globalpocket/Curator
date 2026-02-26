@@ -176,12 +176,12 @@ async function downloadAndProcessImage(postId, imageUrl) {
     formData.append('alt_text', `投稿ID ${postId} の画像`);
 
     // WordPressにアップロード
-    const uploadResponse = await wpReq('/media', 'POST', formData);
+    const uploadResponse = await wpReq('/wp-json/wp/v2/media', 'POST', formData);
 
     if (uploadResponse.id) {
       console.log(`✅ 投稿ID ${postId} の画像アップロード完了 (メディアID: ${uploadResponse.id})`);
       try {
-        await wpReq(`/posts/${postId}`, 'POST', {
+        await wpReq(`/wp-json/wp/v2/posts/${postId}`, 'POST', {
           featured_media: uploadResponse.id,
         });
         console.log(`🖼️ 投稿ID ${postId} にアイキャッチ画像を設定しました (メディアID: ${uploadResponse.id})`);
@@ -281,7 +281,7 @@ async function updatePostImmediately(updateInfo) {
   try {
     console.log(`📝 投稿ID ${updateInfo.postId} を更新中...`);
 
-    const updateResponse = await wpReq(`/posts/${updateInfo.postId}`, 'POST', updateInfo.updateData);
+    const updateResponse = await wpReq(`/wp-json/wp/v2/posts/${updateInfo.postId}`, 'POST', updateInfo.updateData);
 
     if (updateResponse.id) {
       console.log(`✅ 投稿ID ${updateInfo.postId} を更新しました。`);
@@ -534,7 +534,7 @@ async function importNews() {
 
     for (const importId of importIds) {
       const importSuccess = await handleImport(
-        `${WP_API.replace('/wp-json/wp/v2', '')}/wp-load.php?import_key=r_9pwmOfJ&import_id=${importId}`,
+        `${WP_API}/wp-load.php?import_key=r_9pwmOfJ&import_id=${importId}`,
       );
 
       if (!importSuccess) {
@@ -561,7 +561,7 @@ async function processNews() {
     let hasMorePosts = true;
     while (hasMorePosts) {
       const response = await wpReq(
-        `/posts?status=pending&_embed&context=edit&acf_format=standard&per_page=${perPage}&page=${page}`,
+        `/wp-json/wp/v2/posts?status=pending&_embed&context=edit&acf_format=standard&per_page=${perPage}&page=${page}`,
       );
 
       const posts = response;
@@ -612,7 +612,7 @@ async function processPostById(postId) {
 
     console.log(`--- 投稿ID ${postId} の処理を開始します ---`);
 
-    const post = await wpReq(`/posts/${postId}?status=pending&_embed&context=edit&acf_format=standard`);
+    const post = await wpReq(`/wp-json/wp/v2/posts/${postId}?status=pending&_embed&context=edit&acf_format=standard`);
 
     if (!post || !post.id) {
       console.error(`❌ 投稿ID ${postId} が見つからないか、アクセスできません。`);
