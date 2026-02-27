@@ -20,9 +20,6 @@ on:
         description: '投稿ID'
         required: true
         type: string
-  # 10分おきに実行
-  schedule:
-    - cron: '*/10 * * * *'   # 5分おき
 
 permissions:
   contents: read
